@@ -9,9 +9,11 @@ import {
   Trophy, 
   Users, 
   ShieldAlert,
-  Code
+  Code,
+  LogOut // Import the LogOut icon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { signOut } from "next-auth/react"; // Import signOut
 
 const links = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
@@ -30,7 +32,8 @@ export function Sidebar({ role }: { role?: string }) {
 
   return (
     <aside className="hidden md:flex flex-col w-64 border-r border-white/10 bg-slate/30 backdrop-blur-sm h-full">
-      <div className="flex flex-col gap-2 p-4">
+      {/* 1. Scrollable Navigation Area */}
+      <div className="flex-1 flex flex-col gap-2 p-4 overflow-y-auto">
         <p className="px-4 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
           Menu
         </p>
@@ -40,7 +43,6 @@ export function Sidebar({ role }: { role?: string }) {
           return (
             <Link key={link.href} href={link.href}>
               <div className="relative group">
-                {/* Active Indicator (Glowing Line) */}
                 {isActive && (
                   <motion.div
                     layoutId="activeNav"
@@ -64,7 +66,7 @@ export function Sidebar({ role }: { role?: string }) {
           );
         })}
 
-        {/* Admin Section (Only visible to Admins) */}
+        {/* Admin Section */}
         {role === "ADMIN" && (
           <>
             <div className="my-2 border-t border-white/10" />
@@ -81,6 +83,17 @@ export function Sidebar({ role }: { role?: string }) {
             ))}
           </>
         )}
+      </div>
+
+      {/* 2. Sticky Bottom Section (Logout) */}
+      <div className="p-4 border-t border-white/10">
+        <button
+          onClick={() => signOut({ callbackUrl: "/login" })} // Redirects to Login after sign out
+          className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-bold text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all"
+        >
+          <LogOut className="w-5 h-5" />
+          Disconnect
+        </button>
       </div>
     </aside>
   );
