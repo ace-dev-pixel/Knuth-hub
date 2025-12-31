@@ -1,0 +1,106 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Enums ensure data consistency
+enum UserRole {
+  ADMIN
+  MEMBER
+  ALUMNI
+}
+
+enum EventType {
+  WORKSHOP
+  CONTEST
+  HACKATHON
+  MEETUP
+}
+
+// 1. User & Auth (Standard NextAuth Schema)
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          UserRole  @default(MEMBER)
+  
+  // Profile Extensions
+  bio           String?
+  githubHandle  String?
+  linkedinUrl   String?
+  
+  accounts      Account[]
+  sessions      Session[]
+  registrations Registration[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String? @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// 2. Events System
+model Event {
+  id          String    @id @default(cuid())
+  slug        String    @unique // for pretty URLs: knuth-hub/events/intro-to-react
+  title       String
+  description String    @db.Text
+  imageUrl    String?   // Cloudinary URL
+  date        DateTime
+  location    String    // "Room 303" or "Zoom Link"
+  type        EventType
+  
+  isPublished Boolean   @default(false)
+  
+  registrations Registration[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// 3. Junction Table: Many-to-Many (User <-> Event)
+model Registration {
+  id        String   @id @default(cuid())
+  userId    String
+  eventId   String
+  attended  Boolean  @default(false) // For certificates later
+  
+  user      User     @relation(fields: [userId], references: [id])
+  event     Event    @relation(fields: [eventId], references: [id])
+
+  @@unique([userId, eventId]) // User can't register twice
+}
