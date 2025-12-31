@@ -10,8 +10,11 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
+    "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^5.19.1",
+    "axios": "^1.13.2",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "framer-motion": "^12.23.26",
     "lucide-react": "^0.562.0",
@@ -20,7 +23,10 @@
     "prisma": "^5.19.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "tailwind-merge": "^3.4.0"
+    "react-dropzone": "^14.3.8",
+    "react-hook-form": "^7.69.0",
+    "tailwind-merge": "^3.4.0",
+    "zod": "^4.3.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
